@@ -4,7 +4,7 @@ export const secundariaProducts = [
   
   // Queijos
   { category: "Queijos", name: "Queijo cheddar" },
-  { category: "Queijos", name: "Queijo Emmental Ralado" },
+  { category: "Queijos", name: "Queijo White" },
 
   // Molhos
   { category: "Molhos", name: "Molho Big Mac" },
