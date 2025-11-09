@@ -73,8 +73,16 @@ const Index = () => {
           category: "Bebidas",
           name: "Compal Laranja",
           expiryDate: "2026-03-31",
-          dlcType: "Stock" as DLCType,
+          dlcType: "Primária" as DLCType, // Corrigido de "Stock" para "Primária"
           observation: "",
+        }),
+        updateProductCalculations({
+          id: crypto.randomUUID(),
+          category: "DLC Negativa",
+          name: "Pães",
+          expiryDate: "2025-12-01T00:00", // Exemplo de data com hora padrão
+          dlcType: "Primária" as DLCType,
+          observation: "Produto de exemplo para DLC Negativa",
         }),
       ];
       setProducts(exampleProducts);
