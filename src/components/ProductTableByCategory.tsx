@@ -23,16 +23,16 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
 
   // Define the custom order for categories
   const customCategoryOrder = [
+    "DLC NEGATIVA PÃES",
+    "DLC NEGATIVA PROTEÍNAS",
+    "DLC NEGATIVA Outros",
     "McCafé",
     "Queijos",
     "Molhos",
     "Pães",
     "Sobremesas",
     "Outros",
-    "DLC NEGATIVA PÃES",
-    "DLC NEGATIVA PÃES OUTROS",
-    "DLC NEGATIVA Outros", // Nova categoria adicionada aqui
-    "DLC NEGATIVA PROTEÍNAS",
+    "DLC NEGATIVA PÃES OUTROS", // Mantido aqui, mas pode ser ajustado se houver mais especificações
   ];
 
   // Sort categories based on the custom order, placing unknown categories at the end
