@@ -21,7 +21,32 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
     return acc;
   }, {} as Record<string, Product[]>);
 
-  const categories = Object.keys(groupedProducts).sort();
+  // Define the custom order for categories
+  const customCategoryOrder = [
+    "McCafé",
+    "Queijos",
+    "Molhos",
+    "Pães",
+    "Sobremesas",
+    "Outros",
+  ];
+
+  // Sort categories based on the custom order, placing unknown categories at the end
+  const categories = Object.keys(groupedProducts).sort((a, b) => {
+    const indexA = customCategoryOrder.indexOf(a);
+    const indexB = customCategoryOrder.indexOf(b);
+
+    if (indexA === -1 && indexB === -1) {
+      return a.localeCompare(b); // Sort alphabetically if both are not in custom order
+    }
+    if (indexA === -1) {
+      return 1; // 'a' is not in custom order, so it comes after 'b'
+    }
+    if (indexB === -1) {
+      return -1; // 'b' is not in custom order, so it comes after 'a'
+    }
+    return indexA - indexB; // Sort by custom order
+  });
 
   if (products.length === 0) {
     return (
