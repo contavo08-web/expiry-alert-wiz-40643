@@ -50,7 +50,6 @@ export const secundariaProducts = [
   { category: "Outros", name: "Cebola crocante" },
   { category: "Outros", name: "Cebola desidratada" },
   { category: "Outros", name: "Pepino" },
-  { category: "Outros", name: "Cogumelos" },
   { category: "Outros", name: "Bolsa Teflon" },
   { category: "Outros", name: "Lipton Stevia" },
   { category: "Outros", name: "Sumol ananás" },
