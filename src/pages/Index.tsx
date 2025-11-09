@@ -5,8 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { SummaryCard } from "@/components/SummaryCard";
-import { ProductTable } from "@/components/ProductTable";
-import { ProductTableByCategory } from "@/components/ProductTableByCategory";
+import { ProductTableByCategory } from "@/components/ProductTableByCategory"; // Importar ProductTableByCategory
 import { ProductDialog } from "@/components/ProductDialog";
 import { VerificationStatusCard } from "@/components/VerificationStatusCard";
 import { VerificationDialog } from "@/components/VerificationDialog";
@@ -73,7 +72,7 @@ const Index = () => {
           category: "Bebidas",
           name: "Compal Laranja",
           expiryDate: "2026-03-31",
-          dlcType: "Primária" as DLCType, // Corrigido de "Stock" para "Primária"
+          dlcType: "Primária" as DLCType,
           observation: "",
         }),
         updateProductCalculations({
@@ -379,7 +378,7 @@ const Index = () => {
               </Button>
             </div>
 
-            <ProductTable 
+            <ProductTableByCategory // Usando ProductTableByCategory aqui
               products={filteredProducts.filter(p => p.dlcType === "Primária")} 
               onEdit={handleEdit} 
               onDelete={handleDelete} 
