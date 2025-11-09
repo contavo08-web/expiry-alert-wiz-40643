@@ -29,6 +29,7 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
     "Pães",
     "Sobremesas",
     "Outros",
+    "DLC Negativa", // Adicionado para garantir a ordem
   ];
 
   // Sort categories based on the custom order, placing unknown categories at the end
@@ -61,7 +62,7 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
       {categories.map((category) => (
         <div key={category} className="rounded-lg border bg-card overflow-hidden">
           <div className="bg-muted px-4 py-3">
-            <h3 className="font-semibold text-lg text-foreground">{category}</h3>
+            <h3 className="font-semibold text-lg text-foreground">{category.toUpperCase()}</h3>
           </div>
           
           {/* Desktop Table View */}

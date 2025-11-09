@@ -355,7 +355,7 @@ const Index = () => {
                   <SelectItem value="all">Todas as Categorias</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat} value={cat}>
-                      {cat}
+                      {cat.toUpperCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -454,7 +454,7 @@ const Index = () => {
                   <SelectItem value="all">Todas as Categorias</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat} value={cat}>
-                      {cat}
+                      {cat.toUpperCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
