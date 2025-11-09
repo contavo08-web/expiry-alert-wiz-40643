@@ -35,7 +35,12 @@ const Index = () => {
   useEffect(() => {
     const stored = localStorage.getItem("products");
     if (stored) {
-      const parsedProducts = JSON.parse(stored);
+      let parsedProducts = JSON.parse(stored);
+      // Filter out "Alface L6" from "Frescos" category with "Secundária" DLC type
+      parsedProducts = parsedProducts.filter(
+        (p: Product) => !(p.category === "Frescos" && p.name === "Alface L6" && p.dlcType === "Secundária")
+      );
+
       // Recalculate all products to ensure up-to-date status
       const updatedProducts = parsedProducts.map((p: Product) => 
         updateProductCalculations({
@@ -59,7 +64,6 @@ const Index = () => {
           dlcType: "Primária" as DLCType,
           observation: "",
         }),
-        // Removido o produto "Alface L6" da categoria "Frescos"
         updateProductCalculations({
           id: crypto.randomUUID(),
           category: "Bebidas",
