@@ -20,6 +20,7 @@ import { dlcNegativaProteinasDefaultProducts } from "@/utils/dlcNegativaProteina
 
 // Definindo uma interface para os itens de produto padrão
 interface DefaultProductItem {
+  id: string; // Adicionando ID para produtos padrão
   category: string;
   name: string;
   subCategory?: string;
@@ -27,6 +28,12 @@ interface DefaultProductItem {
   dlcType?: DLCType;
   observation?: string;
 }
+
+// Helper para gerar um ID estável para produtos padrão
+const generateStableId = (category: string, name: string, dlcType: DLCType) => {
+  // Usa Base64 para criar um ID único e consistente a partir dos atributos do produto
+  return btoa(`${category}-${name}-${dlcType}`);
+};
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -42,58 +49,76 @@ const Index = () => {
   const [verificationDialogOpen, setVerificationDialogOpen] = useState(false);
   const [lastVerification, setLastVerification] = useState<VerificationLog | null>(null);
 
-  // Load products from localStorage or initialize with examples
+  // Load products from localStorage and merge with default products
   useEffect(() => {
     const stored = localStorage.getItem("products");
+    let userManagedProducts: Product[] = [];
     if (stored) {
-      let parsedProducts = JSON.parse(stored);
-      // Filter out "Alface L6" from "Frescos" category with "Secundária" DLC type
-      parsedProducts = parsedProducts.filter(
-        (p: Product) => !(p.category === "Frescos" && p.name === "Alface L6" && p.dlcType === "Secundária")
-      );
-      // Filter out "Queijo cheddar" and "Queijo White" from "Molhos" category with "Secundária" DLC type
-      parsedProducts = parsedProducts.filter(
-        (p: Product) => !(p.category === "Molhos" && (p.name === "Queijo cheddar" || p.name === "Queijo White") && p.dlcType === "Secundária")
-      );
-
-      // Recalculate all products to ensure up-to-date status and include subCategory
-      const updatedProducts = parsedProducts.map((p: Product) => 
-        updateProductCalculations({
-          id: p.id,
-          category: p.category,
-          subCategory: p.subCategory, // Incluir subCategory
-          name: p.name,
-          expiryDate: p.expiryDate,
-          dlcType: p.dlcType,
-          observation: p.observation,
-        })
-      );
-      setProducts(updatedProducts);
-    } else {
-      // Initialize with example products from primariaDefaultProducts and dlcNegativaProteinasDefaultProducts
-      const allDefaultProducts: DefaultProductItem[] = [
-        ...primariaDefaultProducts,
-        ...dlcNegativaProteinasDefaultProducts,
-        // Exemplo de produto com subcategoria
-        { category: "DLC Positiva", subCategory: "Frescos", name: "Alface L6", expiryDate: "2025-12-10T18:00", dlcType: "Primária", observation: "Exemplo com subcategoria" },
-        { category: "DLC Positiva", subCategory: "Congelados", name: "Batata Frita", expiryDate: "2025-12-20T00:00", dlcType: "Primária", observation: "Outro exemplo" },
-      ];
-
-      const exampleProducts = allDefaultProducts.map(item => 
-        updateProductCalculations({
-          id: crypto.randomUUID(),
-          category: item.category,
-          subCategory: item.subCategory, // Agora item.subCategory é corretamente tipado como string | undefined
-          name: item.name,
-          expiryDate: item.expiryDate || "2025-12-01T00:00", // Fornece um valor padrão se undefined
-          dlcType: item.dlcType || "Primária", // Fornece um valor padrão se undefined
-          observation: item.observation, // Agora item.observation é corretamente tipado como string | undefined
-        })
-      );
-      setProducts(exampleProducts);
+      userManagedProducts = JSON.parse(stored);
     }
 
-    // Load verification logs
+    // Define todos os produtos padrão com IDs estáveis
+    const allDefaultProducts: DefaultProductItem[] = [
+      ...primariaDefaultProducts.map(item => {
+        const dlcType: DLCType = "Primária"; // Define dlcType explicitamente
+        return {
+          ...item,
+          id: generateStableId(item.category, item.name, dlcType),
+          dlcType: dlcType,
+        };
+      }),
+      ...dlcNegativaProteinasDefaultProducts.map(item => {
+        const dlcType: DLCType = "Primária"; // Define dlcType explicitamente
+        return {
+          ...item,
+          id: generateStableId(item.category, item.name, dlcType),
+          dlcType: dlcType,
+        };
+      }),
+      // Produtos DLC Secundária agora também são padrão fixos
+      ...secundariaProducts.map(item => {
+        const dlcType: DLCType = "Secundária"; // Define dlcType explicitamente
+        const expiryDate = "2025-12-01T00:00"; // Define expiryDate padrão
+        return {
+          ...item,
+          id: generateStableId(item.category, item.name, dlcType),
+          dlcType: dlcType,
+          expiryDate: expiryDate,
+        };
+      }),
+      // Exemplo de produto com subcategoria
+      { id: generateStableId("DLC Positiva", "Alface L6", "Primária"), category: "DLC Positiva", subCategory: "Frescos", name: "Alface L6", expiryDate: "2025-12-10T18:00", dlcType: "Primária", observation: "Exemplo com subcategoria" },
+      { id: generateStableId("DLC Positiva", "Batata Frita", "Primária"), category: "DLC Positiva", subCategory: "Congelados", name: "Batata Frita", expiryDate: "2025-12-20T00:00", dlcType: "Primária", observation: "Outro exemplo" },
+    ];
+
+    const finalProductsMap = new Map<string, Product>(); // Chave: product.id
+
+    // 1. Adiciona todos os produtos gerenciados pelo usuário primeiro.
+    // Estes têm precedência para itens existentes (mantém edições do usuário).
+    userManagedProducts.forEach(p => {
+      finalProductsMap.set(p.id, updateProductCalculations(p));
+    });
+
+    // 2. Adiciona produtos padrão. Se um produto padrão (pelo ID) já existir
+    // nos produtos gerenciados pelo usuário (e, portanto, em finalProductsMap),
+    // sua versão modificada pelo usuário é mantida. Caso contrário, a versão padrão é adicionada.
+    allDefaultProducts.forEach(item => {
+      if (!finalProductsMap.has(item.id)) {
+        finalProductsMap.set(item.id, updateProductCalculations({
+          id: item.id, // Usa o ID estável
+          category: item.category,
+          subCategory: item.subCategory,
+          name: item.name,
+          expiryDate: item.expiryDate || "2025-12-01T00:00", // Fornece uma data de validade padrão
+          dlcType: item.dlcType || "Primária", // Fornece um tipo DLC padrão
+          observation: item.observation,
+        }));
+      }
+    });
+
+    setProducts(Array.from(finalProductsMap.values()));
+
+    // Load verification logs (lógica existente)
     const storedLogs = localStorage.getItem("verificationLogs");
     if (storedLogs) {
       const logs = JSON.parse(storedLogs);
@@ -102,16 +127,12 @@ const Index = () => {
         setLastVerification(logs[0]);
       }
     }
-  }, []);
+  }, []); // Array de dependência vazio significa que isso é executado uma vez na montagem
 
   // Save products to localStorage
   useEffect(() => {
-    if (products.length > 0) {
-      localStorage.setItem("products", JSON.stringify(products));
-    } else {
-      // If products become empty, clear from localStorage
-      localStorage.removeItem("products");
-    }
+    // Salva todos os produtos, incluindo os padrão (se modificados) e os adicionados pelo usuário
+    localStorage.setItem("products", JSON.stringify(products));
   }, [products]);
 
   // Save verification logs to localStorage
@@ -210,24 +231,8 @@ const Index = () => {
     setDialogOpen(true);
   };
 
-  const handleAddSecundariaProducts = () => {
-    // Para DLC Secundária, usa datetime-local com hora atual
-    const now = new Date();
-    const today = now.toISOString().slice(0, 16); // formato datetime-local
-    const newProducts = secundariaProducts.map(item => 
-      updateProductCalculations({
-        id: crypto.randomUUID(),
-        category: item.category,
-        subCategory: undefined, // Explicitamente undefined, pois não existe em secundariaProducts
-        name: item.name,
-        expiryDate: today,
-        dlcType: "Secundária" as DLCType,
-        observation: undefined, // Explicitamente undefined
-      })
-    );
-    setProducts([...products, ...newProducts]);
-    toast.success(`${newProducts.length} produtos DLC Secundária adicionados com data e hora de hoje!`);
-  };
+  // A função handleAddSecundariaProducts foi removida, pois esses produtos agora são fixos.
+  // O botão "Adicionar Produtos do Dia" será substituído por "Renovar DLC Secundária".
 
   const handleRenewSecundariaProducts = () => {
     // Para DLC Secundária, usa datetime-local com hora atual
@@ -299,12 +304,54 @@ const Index = () => {
   const handleResetProducts = () => {
     localStorage.removeItem("products");
     localStorage.removeItem("verificationLogs"); // Também limpa os logs de verificação
-    setProducts([]); // Limpa o estado para forçar o useEffect a carregar os defaults
     setVerificationLogs([]);
     setLastVerification(null);
+
+    // Recarrega os produtos padrão diretamente
+    const allDefaultProducts: DefaultProductItem[] = [
+      ...primariaDefaultProducts.map(item => {
+        const dlcType: DLCType = "Primária";
+        return {
+          ...item,
+          id: generateStableId(item.category, item.name, dlcType),
+          dlcType: dlcType,
+        };
+      }),
+      ...dlcNegativaProteinasDefaultProducts.map(item => {
+        const dlcType: DLCType = "Primária";
+        return {
+          ...item,
+          id: generateStableId(item.category, item.name, dlcType),
+          dlcType: dlcType,
+        };
+      }),
+      ...secundariaProducts.map(item => {
+        const dlcType: DLCType = "Secundária";
+        const expiryDate = "2025-12-01T00:00";
+        return {
+          ...item,
+          id: generateStableId(item.category, item.name, dlcType),
+          dlcType: dlcType,
+          expiryDate: expiryDate,
+        };
+      }),
+      { id: generateStableId("DLC Positiva", "Alface L6", "Primária"), category: "DLC Positiva", subCategory: "Frescos", name: "Alface L6", expiryDate: "2025-12-10T18:00", dlcType: "Primária", observation: "Exemplo com subcategoria" },
+      { id: generateStableId("DLC Positiva", "Batata Frita", "Primária"), category: "DLC Positiva", subCategory: "Congelados", name: "Batata Frita", expiryDate: "2025-12-20T00:00", dlcType: "Primária", observation: "Outro exemplo" },
+    ];
+
+    const initialProducts = allDefaultProducts.map(item => 
+      updateProductCalculations({
+        id: item.id,
+        category: item.category,
+        subCategory: item.subCategory,
+        name: item.name,
+        expiryDate: item.expiryDate || "2025-12-01T00:00",
+        dlcType: item.dlcType || "Primária",
+        observation: item.observation,
+      })
+    );
+    setProducts(initialProducts);
     toast.success("Produtos e histórico resetados para os valores padrão!");
-    // Força um refresh para garantir que os defaults sejam carregados
-    window.location.reload(); 
   };
 
   // Check if verified today for badge
@@ -431,9 +478,10 @@ const Index = () => {
                 <ClipboardCheck className="mr-2 h-4 w-4" />
                 Confirmar Verificação Diária
               </Button>
-              <Button onClick={handleAddSecundariaProducts} variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Adicionar Produtos do Dia
+              {/* Botão "Adicionar Produtos do Dia" removido, pois os produtos DLC Secundária são fixos */}
+              <Button onClick={handleRenewSecundariaProducts} variant="outline">
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Renovar DLC Secundária
               </Button>
             </div>
 
