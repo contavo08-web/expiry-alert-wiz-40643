@@ -8,4 +8,10 @@ export const primariaDefaultProducts = [
   { category: "DLC NEGATIVA PÃES", name: "Pão big arch" },
   { category: "DLC NEGATIVA PÃES", name: "Pão sem glúten" },
   { category: "DLC NEGATIVA PÃES", name: "Panquecas" },
+  // Nova categoria "DLC NEGATIVA Outros"
+  { category: "DLC NEGATIVA Outros", name: "Tarte de maçã" },
+  { category: "DLC NEGATIVA Outros", name: "Batatas" },
+  // Outros produtos DLC Primária de exemplo (se houver)
+  { category: "Pães", name: "Pão BigMac" },
+  { category: "Bebidas", name: "Compal Laranja" },
 ];

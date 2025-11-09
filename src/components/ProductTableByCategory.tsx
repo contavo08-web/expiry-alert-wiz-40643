@@ -30,7 +30,8 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
     "Sobremesas",
     "Outros",
     "DLC NEGATIVA PÃES",
-    "DLC NEGATIVA PÃES OUTROS", // Nova categoria adicionada aqui
+    "DLC NEGATIVA PÃES OUTROS",
+    "DLC NEGATIVA Outros", // Nova categoria adicionada aqui
     "DLC NEGATIVA PROTEÍNAS",
   ];
 
