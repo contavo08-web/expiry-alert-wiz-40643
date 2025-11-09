@@ -72,36 +72,120 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
             <h3 className="font-semibold text-lg text-foreground">{category.toUpperCase()}</h3>
           </div>
           
-          {/* Iterate through subcategories within each main category */}
-          {Object.keys(groupedProducts[category]).sort().map((subCategory) => (
-            <div key={`${category}-${subCategory}`} className="border-t border-border first:border-t-0">
-              {subCategory !== "Sem Subcategoria" && (
-                <div className="bg-muted/50 px-4 py-2">
-                  <h4 className="font-medium text-base text-muted-foreground">{subCategory.toUpperCase()}</h4>
-                </div>
-              )}
+          {/* Grid container for subcategories */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+            {Object.keys(groupedProducts[category]).sort().map((subCategory) => (
+              <div key={`${category}-${subCategory}`} className="rounded-md border overflow-hidden shadow-sm"> {/* Each subcategory as a card */}
+                {subCategory !== "Sem Subcategoria" && (
+                  <div className="bg-muted/50 px-4 py-2 border-b border-border">
+                    <h4 className="font-medium text-base text-muted-foreground">{subCategory.toUpperCase()}</h4>
+                  </div>
+                )}
 
-              {/* Desktop Table View */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Produto</TableHead>
-                      <TableHead>Data de Validade</TableHead>
-                      <TableHead>Tipo DLC</TableHead>
-                      <TableHead>Dias p/ Vencer</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Observação</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {groupedProducts[category][subCategory].map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            <span>
+                {/* Product list for this subcategory */}
+                {/* Desktop Table View */}
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Produto</TableHead>
+                        <TableHead>Data de Validade</TableHead>
+                        <TableHead>Tipo DLC</TableHead>
+                        <TableHead>Dias p/ Vencer</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Observação</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {groupedProducts[category][subCategory].map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-col gap-1">
+                              <span>
+                                {product.expiryDate.includes('T') || product.expiryDate.length > 10
+                                  ? new Date(product.expiryDate).toLocaleString("pt-PT", { 
+                                      day: '2-digit', 
+                                      month: '2-digit', 
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })
+                                  : new Date(product.expiryDate).toLocaleDateString("pt-PT")}
+                              </span>
+                              {product.expiryDates && product.expiryDates.length > 1 && (
+                                <span className="text-xs text-muted-foreground">
+                                  +{product.expiryDates.length - 1} {product.expiryDates.length - 1 === 1 ? 'data' : 'datas'}
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>{product.dlcType}</TableCell>
+                          <TableCell>{product.daysToExpiry}</TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(product.status)}>{getStatusLabel(product.status)}</Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">{product.observation || "-"}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button variant="ghost" size="icon" onClick={() => onEdit(product)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => onDelete(product.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-border">
+                  {groupedProducts[category][subCategory].map((product) => (
+                    <div 
+                      key={product.id} 
+                      className="p-4 space-y-3 transition-all duration-200 active:bg-accent/50 hover:bg-accent/30 animate-fade-in"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-foreground truncate">{product.name}</h4>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <Badge className={`${getStatusColor(product.status)} transition-all duration-200`}>
+                              {getStatusLabel(product.status)}
+                            </Badge>
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {product.daysToExpiry} dias
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-1.5 shrink-0">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => onEdit(product)}
+                            className="h-9 w-9 hover-scale transition-all active:scale-95"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => onDelete(product.id)}
+                            className="h-9 w-9 hover-scale transition-all active:scale-95 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="text-sm space-y-2">
+                        <div className="flex justify-between items-start gap-3 p-2 rounded-md bg-muted/30 transition-colors duration-200">
+                          <span className="text-muted-foreground font-medium">Data de Validade:</span>
+                          <div className="flex flex-col items-end">
+                            <span className="font-semibold text-foreground">
                               {product.expiryDate.includes('T') || product.expiryDate.length > 10
                                 ? new Date(product.expiryDate).toLocaleString("pt-PT", { 
                                     day: '2-digit', 
@@ -113,106 +197,25 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
                                 : new Date(product.expiryDate).toLocaleDateString("pt-PT")}
                             </span>
                             {product.expiryDates && product.expiryDates.length > 1 && (
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-muted-foreground mt-0.5 font-medium">
                                 +{product.expiryDates.length - 1} {product.expiryDates.length - 1 === 1 ? 'data' : 'datas'}
                               </span>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell>{product.dlcType}</TableCell>
-                        <TableCell>{product.daysToExpiry}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(product.status)}>{getStatusLabel(product.status)}</Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{product.observation || "-"}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => onEdit(product)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => onDelete(product.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                        </div>
+                        {product.observation && (
+                          <div className="flex justify-between items-start gap-3 p-2 rounded-md bg-muted/30 transition-colors duration-200">
+                            <span className="text-muted-foreground font-medium">Observação:</span>
+                            <span className="font-medium text-foreground text-right">{product.observation}</span>
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Card View */}
-              <div className="md:hidden divide-y divide-border">
-                {groupedProducts[category][subCategory].map((product) => (
-                  <div 
-                    key={product.id} 
-                    className="p-4 space-y-3 transition-all duration-200 active:bg-accent/50 hover:bg-accent/30 animate-fade-in"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-foreground truncate">{product.name}</h4>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <Badge className={`${getStatusColor(product.status)} transition-all duration-200`}>
-                            {getStatusLabel(product.status)}
-                          </Badge>
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {product.daysToExpiry} dias
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-1.5 shrink-0">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => onEdit(product)}
-                          className="h-9 w-9 hover-scale transition-all active:scale-95"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => onDelete(product.id)}
-                          className="h-9 w-9 hover-scale transition-all active:scale-95 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        )}
                       </div>
                     </div>
-                    <div className="text-sm space-y-2">
-                      <div className="flex justify-between items-start gap-3 p-2 rounded-md bg-muted/30 transition-colors duration-200">
-                        <span className="text-muted-foreground font-medium">Data de Validade:</span>
-                        <div className="flex flex-col items-end">
-                          <span className="font-semibold text-foreground">
-                            {product.expiryDate.includes('T') || product.expiryDate.length > 10
-                              ? new Date(product.expiryDate).toLocaleString("pt-PT", { 
-                                  day: '2-digit', 
-                                  month: '2-digit', 
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })
-                              : new Date(product.expiryDate).toLocaleDateString("pt-PT")}
-                          </span>
-                          {product.expiryDates && product.expiryDates.length > 1 && (
-                            <span className="text-xs text-muted-foreground mt-0.5 font-medium">
-                              +{product.expiryDates.length - 1} {product.expiryDates.length - 1 === 1 ? 'data' : 'datas'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {product.observation && (
-                        <div className="flex justify-between items-start gap-3 p-2 rounded-md bg-muted/30 transition-colors duration-200">
-                          <span className="text-muted-foreground font-medium">Observação:</span>
-                          <span className="font-medium text-foreground text-right">{product.observation}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ))}
     </div>
