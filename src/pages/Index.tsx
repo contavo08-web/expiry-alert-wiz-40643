@@ -16,6 +16,7 @@ import { Plus, Search, Package, AlertTriangle, Calendar, CheckCircle, ClipboardC
 import { toast } from "sonner";
 import { secundariaProducts } from "@/utils/secundariaProducts";
 import { primariaDefaultProducts } from "@/utils/primariaDefaultProducts";
+import { dlcNegativaProteinasDefaultProducts } from "@/utils/dlcNegativaProteinasDefaultProducts"; // Importar novos produtos
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -58,8 +59,13 @@ const Index = () => {
       );
       setProducts(updatedProducts);
     } else {
-      // Initialize with example products from primariaDefaultProducts
-      const exampleProducts = primariaDefaultProducts.map(item => 
+      // Initialize with example products from primariaDefaultProducts and dlcNegativaProteinasDefaultProducts
+      const allDefaultProducts = [
+        ...primariaDefaultProducts,
+        ...dlcNegativaProteinasDefaultProducts, // Adicionar os novos produtos
+      ];
+
+      const exampleProducts = allDefaultProducts.map(item => 
         updateProductCalculations({
           id: crypto.randomUUID(),
           category: item.category,
