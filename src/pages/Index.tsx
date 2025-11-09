@@ -59,14 +59,7 @@ const Index = () => {
           dlcType: "Primária" as DLCType,
           observation: "",
         }),
-        updateProductCalculations({
-          id: crypto.randomUUID(),
-          category: "Frescos",
-          name: "Alface L6",
-          expiryDate: "2025-11-05",
-          dlcType: "Secundária" as DLCType,
-          observation: "",
-        }),
+        // Removido o produto "Alface L6" da categoria "Frescos"
         updateProductCalculations({
           id: crypto.randomUUID(),
           category: "Bebidas",
