@@ -5,16 +5,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { SummaryCard } from "@/components/SummaryCard";
-import { ProductTableByCategory } from "@/components/ProductTableByCategory"; // Importar ProductTableByCategory
+import { ProductTableByCategory } from "@/components/ProductTableByCategory";
 import { ProductDialog } from "@/components/ProductDialog";
 import { VerificationStatusCard } from "@/components/VerificationStatusCard";
 import { VerificationDialog } from "@/components/VerificationDialog";
 import { VerificationHistoryTable } from "@/components/VerificationHistoryTable";
 import { Product, DLCType, VerificationLog } from "@/types/product";
 import { calculateSummary, updateProductCalculations } from "@/utils/productUtils";
-import { Plus, Search, Package, AlertTriangle, Calendar, CheckCircle, ClipboardCheck } from "lucide-react";
+import { Plus, Search, Package, AlertTriangle, Calendar, CheckCircle, ClipboardCheck, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { secundariaProducts } from "@/utils/secundariaProducts";
+import { primariaDefaultProducts } from "@/utils/primariaDefaultProducts";
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -57,33 +58,17 @@ const Index = () => {
       );
       setProducts(updatedProducts);
     } else {
-      // Initialize with example products
-      const exampleProducts = [
+      // Initialize with example products from primariaDefaultProducts
+      const exampleProducts = primariaDefaultProducts.map(item => 
         updateProductCalculations({
           id: crypto.randomUUID(),
-          category: "Pães",
-          name: "Pão BigMac",
-          expiryDate: "2026-02-04",
+          category: item.category,
+          name: item.name,
+          expiryDate: "2025-12-01T00:00", // Data de validade padrão para exemplos
           dlcType: "Primária" as DLCType,
           observation: "",
-        }),
-        updateProductCalculations({
-          id: crypto.randomUUID(),
-          category: "Bebidas",
-          name: "Compal Laranja",
-          expiryDate: "2026-03-31",
-          dlcType: "Primária" as DLCType,
-          observation: "",
-        }),
-        updateProductCalculations({
-          id: crypto.randomUUID(),
-          category: "DLC Negativa",
-          name: "Pães",
-          expiryDate: "2025-12-01T00:00", // Exemplo de data com hora padrão
-          dlcType: "Primária" as DLCType,
-          observation: "Produto de exemplo para DLC Negativa",
-        }),
-      ];
+        })
+      );
       setProducts(exampleProducts);
     }
 
@@ -102,6 +87,9 @@ const Index = () => {
   useEffect(() => {
     if (products.length > 0) {
       localStorage.setItem("products", JSON.stringify(products));
+    } else {
+      // If products become empty, clear from localStorage
+      localStorage.removeItem("products");
     }
   }, [products]);
 
@@ -109,6 +97,8 @@ const Index = () => {
   useEffect(() => {
     if (verificationLogs.length > 0) {
       localStorage.setItem("verificationLogs", JSON.stringify(verificationLogs));
+    } else {
+      localStorage.removeItem("verificationLogs");
     }
   }, [verificationLogs]);
 
@@ -283,6 +273,17 @@ const Index = () => {
     toast.success("Histórico exportado com sucesso!");
   };
 
+  const handleResetProducts = () => {
+    localStorage.removeItem("products");
+    localStorage.removeItem("verificationLogs"); // Também limpa os logs de verificação
+    setProducts([]); // Limpa o estado para forçar o useEffect a carregar os defaults
+    setVerificationLogs([]);
+    setLastVerification(null);
+    toast.success("Produtos e histórico resetados para os valores padrão!");
+    // Força um refresh para garantir que os defaults sejam carregados
+    window.location.reload(); 
+  };
+
   // Check if verified today for badge
   const isVerifiedToday = lastVerification
     ? new Date(lastVerification.date).toDateString() === new Date().toDateString()
@@ -376,9 +377,13 @@ const Index = () => {
                 <Plus className="mr-2 h-4 w-4" />
                 Adicionar Produto
               </Button>
+              <Button onClick={handleResetProducts} variant="outline" className="w-full md:w-auto">
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Resetar Produtos Padrão
+              </Button>
             </div>
 
-            <ProductTableByCategory // Usando ProductTableByCategory aqui
+            <ProductTableByCategory
               products={filteredProducts.filter(p => p.dlcType === "Primária")} 
               onEdit={handleEdit} 
               onDelete={handleDelete} 
