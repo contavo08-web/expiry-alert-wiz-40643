@@ -64,6 +64,25 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
     );
   }
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false // Use 24-hour format
+    };
+    // Check if the date string includes time information
+    if (dateString.includes('T') || dateString.length > 10) {
+      return date.toLocaleString("pt-PT", options);
+    } else {
+      // If only date, format without time
+      return date.toLocaleDateString("pt-PT");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {mainCategories.map((category) => (
@@ -101,21 +120,20 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
                         <TableCell className="font-medium">{product.name}</TableCell>
                         <TableCell>
                           <div className="flex flex-col gap-1">
-                            <span>
-                              {product.expiryDate.includes('T') || product.expiryDate.length > 10
-                                ? new Date(product.expiryDate).toLocaleString("pt-PT", { 
-                                    day: '2-digit', 
-                                    month: '2-digit', 
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })
-                                : new Date(product.expiryDate).toLocaleDateString("pt-PT")}
-                            </span>
+                            <span>{formatDate(product.expiryDate)}</span>
                             {product.expiryDates && product.expiryDates.length > 1 && (
-                              <span className="text-xs text-muted-foreground">
-                                +{product.expiryDates.length - 1} {product.expiryDates.length - 1 === 1 ? 'data' : 'datas'}
-                              </span>
+                              <>
+                                {product.expiryDates.length >= 2 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatDate(product.expiryDates[1])}
+                                  </span>
+                                )}
+                                {product.expiryDates.length > 2 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    +{product.expiryDates.length - 2} {product.expiryDates.length - 2 === 1 ? 'data' : 'datas'}
+                                  </span>
+                                )}
+                              </>
                             )}
                           </div>
                         </TableCell>
@@ -184,20 +202,21 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
                         <span className="text-muted-foreground font-medium">Data de Validade:</span>
                         <div className="flex flex-col items-end">
                           <span className="font-semibold text-foreground">
-                            {product.expiryDate.includes('T') || product.expiryDate.length > 10
-                              ? new Date(product.expiryDate).toLocaleString("pt-PT", { 
-                                  day: '2-digit', 
-                                  month: '2-digit', 
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })
-                              : new Date(product.expiryDate).toLocaleDateString("pt-PT")}
+                            {formatDate(product.expiryDate)}
                           </span>
                           {product.expiryDates && product.expiryDates.length > 1 && (
-                            <span className="text-xs text-muted-foreground mt-0.5 font-medium">
-                              +{product.expiryDates.length - 1} {product.expiryDates.length - 1 === 1 ? 'data' : 'datas'}
-                            </span>
+                            <>
+                              {product.expiryDates.length >= 2 && (
+                                <span className="text-xs text-muted-foreground mt-0.5 font-medium">
+                                  {formatDate(product.expiryDates[1])}
+                                </span>
+                              )}
+                              {product.expiryDates.length > 2 && (
+                                <span className="text-xs text-muted-foreground mt-0.5 font-medium">
+                                  +{product.expiryDates.length - 2} {product.expiryDates.length - 2 === 1 ? 'data' : 'datas'}
+                                </span>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
