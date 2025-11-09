@@ -16,7 +16,17 @@ import { Plus, Search, Package, AlertTriangle, Calendar, CheckCircle, ClipboardC
 import { toast } from "sonner";
 import { secundariaProducts } from "@/utils/secundariaProducts";
 import { primariaDefaultProducts } from "@/utils/primariaDefaultProducts";
-import { dlcNegativaProteinasDefaultProducts } from "@/utils/dlcNegativaProteinasDefaultProducts"; // Importar novos produtos
+import { dlcNegativaProteinasDefaultProducts } from "@/utils/dlcNegativaProteinasDefaultProducts";
+
+// Definindo uma interface para os itens de produto padrão
+interface DefaultProductItem {
+  category: string;
+  name: string;
+  subCategory?: string;
+  expiryDate?: string;
+  dlcType?: DLCType;
+  observation?: string;
+}
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -46,11 +56,12 @@ const Index = () => {
         (p: Product) => !(p.category === "Molhos" && (p.name === "Queijo cheddar" || p.name === "Queijo White") && p.dlcType === "Secundária")
       );
 
-      // Recalculate all products to ensure up-to-date status
+      // Recalculate all products to ensure up-to-date status and include subCategory
       const updatedProducts = parsedProducts.map((p: Product) => 
         updateProductCalculations({
           id: p.id,
           category: p.category,
+          subCategory: p.subCategory, // Incluir subCategory
           name: p.name,
           expiryDate: p.expiryDate,
           dlcType: p.dlcType,
@@ -60,19 +71,23 @@ const Index = () => {
       setProducts(updatedProducts);
     } else {
       // Initialize with example products from primariaDefaultProducts and dlcNegativaProteinasDefaultProducts
-      const allDefaultProducts = [
+      const allDefaultProducts: DefaultProductItem[] = [
         ...primariaDefaultProducts,
-        ...dlcNegativaProteinasDefaultProducts, // Adicionar os novos produtos
+        ...dlcNegativaProteinasDefaultProducts,
+        // Exemplo de produto com subcategoria
+        { category: "DLC Positiva", subCategory: "Frescos", name: "Alface L6", expiryDate: "2025-12-10T18:00", dlcType: "Primária", observation: "Exemplo com subcategoria" },
+        { category: "DLC Positiva", subCategory: "Congelados", name: "Batata Frita", expiryDate: "2025-12-20T00:00", dlcType: "Primária", observation: "Outro exemplo" },
       ];
 
       const exampleProducts = allDefaultProducts.map(item => 
         updateProductCalculations({
           id: crypto.randomUUID(),
           category: item.category,
+          subCategory: item.subCategory, // Agora item.subCategory é corretamente tipado como string | undefined
           name: item.name,
-          expiryDate: "2025-12-01T00:00", // Data de validade padrão para exemplos
-          dlcType: "Primária" as DLCType,
-          observation: "",
+          expiryDate: item.expiryDate || "2025-12-01T00:00", // Fornece um valor padrão se undefined
+          dlcType: item.dlcType || "Primária", // Fornece um valor padrão se undefined
+          observation: item.observation, // Agora item.observation é corretamente tipado como string | undefined
         })
       );
       setProducts(exampleProducts);
@@ -140,7 +155,8 @@ const Index = () => {
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.category.toLowerCase().includes(searchTerm.toLowerCase())
+          p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (p.subCategory && p.subCategory.toLowerCase().includes(searchTerm.toLowerCase())) // Incluir subCategory na busca
       );
     }
 
@@ -202,10 +218,11 @@ const Index = () => {
       updateProductCalculations({
         id: crypto.randomUUID(),
         category: item.category,
+        subCategory: undefined, // Explicitamente undefined, pois não existe em secundariaProducts
         name: item.name,
         expiryDate: today,
         dlcType: "Secundária" as DLCType,
-        observation: "",
+        observation: undefined, // Explicitamente undefined
       })
     );
     setProducts([...products, ...newProducts]);

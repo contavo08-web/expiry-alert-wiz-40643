@@ -18,6 +18,7 @@ interface ProductDialogProps {
 export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDialogProps) => {
   const [formData, setFormData] = useState({
     category: "",
+    subCategory: "", // Novo estado para subcategoria
     name: "",
     expiryDate: "",
     dlcType: "Primária" as DLCType,
@@ -42,6 +43,7 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
     if (product) {
       setFormData({
         category: product.category,
+        subCategory: product.subCategory || "", // Carrega subcategoria existente
         name: product.name,
         expiryDate: formatDateForInput(product.expiryDate), // Apply formatting
         dlcType: product.dlcType,
@@ -58,6 +60,7 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
       const defaultDate = format(now, "yyyy-MM-dd'T'00:00"); // Default to midnight
       setFormData({
         category: "",
+        subCategory: "", // Define subcategoria vazia para novos produtos
         name: "",
         expiryDate: defaultDate, // Set default for new product
         dlcType: "Primária",
@@ -126,8 +129,17 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
                 id="category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="Ex: Pães, Frescos, Bebidas"
+                placeholder="Ex: DLC Positiva"
                 required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="subCategory">Subcategoria (opcional)</Label>
+              <Input
+                id="subCategory"
+                value={formData.subCategory}
+                onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+                placeholder="Ex: Frescos, Congelados"
               />
             </div>
             <div className="grid gap-2">

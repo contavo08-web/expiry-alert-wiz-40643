@@ -5,6 +5,7 @@ export type StatusType = "expired" | "today" | "warning" | "critical" | "ok";
 export interface Product {
   id: string;
   category: string;
+  subCategory?: string; // Nova propriedade para subcategoria
   name: string;
   expiryDate: string;
   expiryDates?: string[]; // múltiplas datas de validade
