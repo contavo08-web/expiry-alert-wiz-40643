@@ -27,7 +27,6 @@ export const secundariaProducts = [
   { category: "Pães", name: "Pão Batata" },
   { category: "Pães", name: "Pão big arch" },
   { category: "Pães", name: "Pão sem glúten" },
-  { category: "Pães", name: "Tortilha" },
   { category: "Pães", name: "Tortilha saco aberto" },
   { category: "Pães", name: "Panquecas" },
   
