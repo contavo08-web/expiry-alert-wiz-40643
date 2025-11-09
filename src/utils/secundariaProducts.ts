@@ -3,7 +3,7 @@ export const secundariaProducts = [
   { category: "McCafé", name: "Leite pacote" },
   
   // Queijos
-  { category: "Queijos", name: "Queijo Cheddar Fatias" },
+  { category: "Queijos", name: "Queijo cheddar" },
   { category: "Queijos", name: "Queijo Emmental Ralado" },
   { category: "Queijos", name: "Queijo Fresco" },
 
