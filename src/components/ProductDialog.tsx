@@ -34,6 +34,7 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
         dlcType: product.dlcType,
         observation: product.observation || "",
       });
+      // Filter out the primary expiryDate from additionalDates for editing
       setAdditionalDates(product.expiryDates?.filter(d => d !== product.expiryDate) || []);
     } else {
       setFormData({
@@ -49,9 +50,24 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const allDates = [formData.expiryDate, ...additionalDates.filter(d => d)];
+
+    // Function to ensure date string includes time, defaulting to midnight
+    const ensureTime = (dateString: string) => {
+      if (!dateString) return ""; // Handle empty string
+      if (dateString.includes('T')) {
+        return dateString; // Already has time
+      }
+      return `${dateString}T00:00`; // Append midnight time
+    };
+
+    const primaryExpiryDateWithTime = ensureTime(formData.expiryDate);
+    const additionalDatesWithTime = additionalDates.map(ensureTime);
+
+    const allDates = [primaryExpiryDateWithTime, ...additionalDatesWithTime.filter(d => d)];
+    
     onSave({
       ...formData,
+      expiryDate: primaryExpiryDateWithTime, // Update primary expiryDate with time
       expiryDates: allDates,
     });
     onOpenChange(false);
@@ -102,7 +118,7 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="expiryDate">
-                  Data de Validade (hora opcional)
+                  Data de Validade
                 </Label>
                 <Button
                   type="button"
@@ -117,16 +133,16 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
               </div>
               <Input
                 id="expiryDate"
-                type="datetime-local"
-                value={formData.expiryDate}
+                type="date"
+                value={formData.expiryDate.split('T')[0]}
                 onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
                 required
               />
               {additionalDates.map((date, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
-                    type="datetime-local"
-                    value={date}
+                    type="date"
+                    value={date.split('T')[0]}
                     onChange={(e) => updateAdditionalDate(index, e.target.value)}
                   />
                   <Button
