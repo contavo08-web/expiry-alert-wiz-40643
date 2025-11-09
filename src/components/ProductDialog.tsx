@@ -194,7 +194,6 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
                 <SelectContent>
                   <SelectItem value="Primária">Primária</SelectItem>
                   <SelectItem value="Secundária">Secundária</SelectItem>
-                  <SelectItem value="Stock">Stock</SelectItem>
                 </SelectContent>
               </Select>
             </div>

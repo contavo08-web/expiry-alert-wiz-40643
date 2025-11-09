@@ -1,4 +1,4 @@
-export type DLCType = "Primária" | "Secundária" | "Stock";
+export type DLCType = "Primária" | "Secundária";
 
 export type StatusType = "expired" | "today" | "warning" | "critical" | "ok";
 
