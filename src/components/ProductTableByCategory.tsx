@@ -30,7 +30,8 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
     "Sobremesas",
     "Outros",
     "DLC NEGATIVA PÃES",
-    "DLC NEGATIVA PROTEÍNAS", // Adicionado a nova categoria
+    "DLC NEGATIVA PROTEÍNAS",
+    "DLC Negativa", // Adicionada a nova categoria
   ];
 
   // Sort categories based on the custom order, placing unknown categories at the end
