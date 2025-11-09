@@ -29,7 +29,6 @@ export const ProductTableByCategory = ({ products, onEdit, onDelete }: ProductTa
     "McCafé",
     "Queijos",
     "Molhos",
-    "Pães",
     "Sobremesas",
     "Outros",
     "DLC NEGATIVA PÃES OUTROS", // Mantido aqui, mas pode ser ajustado se houver mais especificações

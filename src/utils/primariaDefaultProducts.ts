@@ -12,6 +12,5 @@ export const primariaDefaultProducts = [
   { category: "DLC NEGATIVA Outros", name: "Tarte de maçã" },
   { category: "DLC NEGATIVA Outros", name: "Batatas" },
   // Outros produtos DLC Primária de exemplo (se houver)
-  { category: "Pães", name: "Pão BigMac" },
   { category: "Bebidas", name: "Compal Laranja" },
 ];
