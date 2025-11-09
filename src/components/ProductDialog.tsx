@@ -26,21 +26,40 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
   const [additionalDates, setAdditionalDates] = useState<string[]>([]);
 
   useEffect(() => {
+    const formatDateForInput = (dateString: string) => {
+      if (!dateString) return "";
+      // If it's a full ISO string with seconds/milliseconds, truncate to minutes
+      if (dateString.length > 16) {
+        return dateString.substring(0, 16);
+      }
+      // If it's just a date (YYYY-MM-DD), append T00:00
+      if (dateString.length === 10) {
+        return `${dateString}T00:00`;
+      }
+      return dateString; // Already in YYYY-MM-DDTHH:mm format
+    };
+
     if (product) {
       setFormData({
         category: product.category,
         name: product.name,
-        expiryDate: product.expiryDate,
+        expiryDate: formatDateForInput(product.expiryDate), // Apply formatting
         dlcType: product.dlcType,
         observation: product.observation || "",
       });
-      // Filter out the primary expiryDate from additionalDates for editing
-      setAdditionalDates(product.expiryDates?.filter(d => d !== product.expiryDate) || []);
+      setAdditionalDates(
+        product.expiryDates
+          ?.filter(d => d !== product.expiryDate)
+          .map(formatDateForInput) || [] // Apply formatting to additional dates
+      );
     } else {
+      // For new products, default to current date and midnight time
+      const now = new Date();
+      const defaultDate = format(now, "yyyy-MM-dd'T'00:00"); // Default to midnight
       setFormData({
         category: "",
         name: "",
-        expiryDate: "",
+        expiryDate: defaultDate, // Set default for new product
         dlcType: "Primária",
         observation: "",
       });
@@ -51,23 +70,29 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Function to ensure date string includes time, defaulting to midnight
-    const ensureTime = (dateString: string) => {
-      if (!dateString) return ""; // Handle empty string
-      if (dateString.includes('T')) {
-        return dateString; // Already has time
+    // The datetime-local input already provides YYYY-MM-DDTHH:mm format.
+    // This function ensures consistency and handles potential older data formats.
+    const formatDateForSave = (dateString: string) => {
+      if (!dateString) return "";
+      // If it's a full ISO string with seconds/milliseconds, truncate to minutes
+      if (dateString.length > 16) {
+        return dateString.substring(0, 16);
       }
-      return `${dateString}T00:00`; // Append midnight time
+      // If it's just a date (YYYY-MM-DD), append T00:00
+      if (dateString.length === 10) {
+        return `${dateString}T00:00`;
+      }
+      return dateString; // Already in YYYY-MM-DDTHH:mm format
     };
 
-    const primaryExpiryDateWithTime = ensureTime(formData.expiryDate);
-    const additionalDatesWithTime = additionalDates.map(ensureTime);
+    const primaryExpiryDateForSave = formatDateForSave(formData.expiryDate);
+    const additionalDatesForSave = additionalDates.map(formatDateForSave);
 
-    const allDates = [primaryExpiryDateWithTime, ...additionalDatesWithTime.filter(d => d)];
+    const allDates = [primaryExpiryDateForSave, ...additionalDatesForSave.filter(d => d)];
     
     onSave({
       ...formData,
-      expiryDate: primaryExpiryDateWithTime, // Update primary expiryDate with time
+      expiryDate: primaryExpiryDateForSave,
       expiryDates: allDates,
     });
     onOpenChange(false);
@@ -118,7 +143,7 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="expiryDate">
-                  Data de Validade
+                  Data e Hora de Validade
                 </Label>
                 <Button
                   type="button"
@@ -133,16 +158,16 @@ export const ProductDialog = ({ open, onOpenChange, onSave, product }: ProductDi
               </div>
               <Input
                 id="expiryDate"
-                type="date"
-                value={formData.expiryDate.split('T')[0]}
+                type="datetime-local"
+                value={formData.expiryDate}
                 onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
                 required
               />
               {additionalDates.map((date, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
-                    type="date"
-                    value={date.split('T')[0]}
+                    type="datetime-local"
+                    value={date}
                     onChange={(e) => updateAdditionalDate(index, e.target.value)}
                   />
                   <Button
