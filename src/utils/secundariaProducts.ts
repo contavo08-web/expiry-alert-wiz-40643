@@ -8,8 +8,6 @@ export const secundariaProducts = [
   { category: "Queijos", name: "Queijo Fresco" },
 
   // Molhos
-  { category: "Molhos", name: "Queijo cheddar" },
-  { category: "Molhos", name: "Queijo White" },
   { category: "Molhos", name: "Molho Big Mac" },
   { category: "Molhos", name: "Molho Tasty" },
   { category: "Molhos", name: "Molho Maionese" },

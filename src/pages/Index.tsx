@@ -40,6 +40,10 @@ const Index = () => {
       parsedProducts = parsedProducts.filter(
         (p: Product) => !(p.category === "Frescos" && p.name === "Alface L6" && p.dlcType === "Secundária")
       );
+      // Filter out "Queijo cheddar" and "Queijo White" from "Molhos" category with "Secundária" DLC type
+      parsedProducts = parsedProducts.filter(
+        (p: Product) => !(p.category === "Molhos" && (p.name === "Queijo cheddar" || p.name === "Queijo White") && p.dlcType === "Secundária")
+      );
 
       // Recalculate all products to ensure up-to-date status
       const updatedProducts = parsedProducts.map((p: Product) => 
