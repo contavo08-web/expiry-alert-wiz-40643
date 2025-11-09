@@ -9,4 +9,6 @@ export const dlcNegativaProteinasDefaultProducts = [
   { category: "DLC NEGATIVA PROTEÍNAS", name: "Chk Wings" },
   { category: "DLC NEGATIVA PROTEÍNAS", name: "Bacon Long" },
   { category: "DLC NEGATIVA PROTEÍNAS", name: "Carne Bifana" },
+  { category: "DLC NEGATIVA PROTEÍNAS", name: "Carne Frango" },
+  { category: "DLC NEGATIVA PROTEÍNAS", name: "Carne Vaca" },
 ];
