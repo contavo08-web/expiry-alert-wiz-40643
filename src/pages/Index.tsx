@@ -386,6 +386,24 @@ const Index = () => {
 
           {/* Aba DLC Primária */}
           <TabsContent value="primaria" className="space-y-6">
+            {/* Badge de Alerta - Produtos Vencendo Hoje */}
+            {summaryPrimaria.expiringToday > 0 && (
+              <div className="bg-warning/10 border-2 border-warning rounded-lg p-4 flex items-center gap-3 animate-pulse">
+                <AlertTriangle className="h-6 w-6 text-warning flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-warning text-lg">
+                    ⚠️ Atenção: {summaryPrimaria.expiringToday} {summaryPrimaria.expiringToday === 1 ? 'produto vence' : 'produtos vencem'} HOJE!
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Verifique os produtos marcados em amarelo na tabela abaixo.
+                  </p>
+                </div>
+                <Badge variant="destructive" className="text-lg px-4 py-2 flex-shrink-0">
+                  {summaryPrimaria.expiringToday}
+                </Badge>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
               <SummaryCard title="Total de Itens" value={summaryPrimaria.total} icon={Package} />
               <SummaryCard
